@@ -1,6 +1,6 @@
 {
   "name": "node-rest-emulator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple stand alone mock server that uses rest-emulator",
   "main": "index.js",
   "dependencies": {
