@@ -7,12 +7,14 @@ var path = require('path');
 var fs = require('fs');
 var serveStatic = require('serve-static');
 var app = express();
+var cors = require('cors');
 
 const defaultOptions = {
     port: 3000,
     dir: '/mocks',
     root: ['./'],
     rewriteNotFound: false,
+    corsEnable: true,
     rewriteTemplate: 'index.html',
     headers: {}
 };
@@ -27,11 +29,11 @@ function getJSON(filename) {
 }
 
 function getOptions() {
-	if(process.argv.length > 2) {
-		const passedOptions = JSON.parse(fs.readFileSync(process.argv[2]));
-		return Object.assign(defaultOptions, passedOptions);
-	}
-	return defaultOptions;
+    if (process.argv.length > 2) {
+        const passedOptions = JSON.parse(fs.readFileSync(process.argv[2]));
+        return Object.assign(defaultOptions, passedOptions);
+    }
+    return defaultOptions;
 }
 
 function startServer(config) {
@@ -40,6 +42,10 @@ function startServer(config) {
             res.set(options.headers);
             next();
         })
+    }
+
+    if (options.corsEnable) {
+        app.use(cors(options.corsOptions));
     }
 
     options.root.forEach((dir) => app.use(serveStatic(dir)));
@@ -56,9 +62,12 @@ function startServer(config) {
     app.use(restInstance.middleware);
 
     app.listen(options.port);
+    console.log(`Started the rest server on ${options.port}`);
 }
-
-recursive(__dirname + options.dir, function(err, filenames) {
+recursive(process.cwd() + options.dir, function(err, filenames) {
+    if (err) {
+        throw `Failed to read the files in ${process.cwd() + options.dir}, error says: ${err}`;
+    }
     const config = filenames.filter(jsonOnly).map(getJSON);
     startServer(config);
 });

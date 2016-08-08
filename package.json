@@ -4,10 +4,11 @@
   "description": "A simple stand alone mock server that uses rest-emulator",
   "main": "index.js",
   "dependencies": {
+    "cors": "^2.7.1",
     "express": "^4.14.0",
     "recursive-readdir": "^2.0.0",
-    "serve-static": "^1.11.1",
-    "rest-emulator": "^0.1.3"
+    "rest-emulator": "^0.1.3",
+    "serve-static": "^1.11.1"
   },
   "devDependencies": {},
   "keywords": [

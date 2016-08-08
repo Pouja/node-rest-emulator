@@ -24,6 +24,7 @@ If there is any interest I will make it exportable, so you can use codewise.
     dir: '/mocks',
     // An array of directories to serve static files
     root: ['./'],
+    corsEnable: true,    
     // If set to true it will serve rewriteTemplate for 'GET /' requests
     rewriteNotFound: false,
     rewriteTemplate: 'index.html',
