@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var express = require('express');
 var restEmulator = require('rest-emulator');
 var recursive = require('recursive-readdir');
