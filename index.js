@@ -8,7 +8,7 @@ var fs = require('fs');
 var serveStatic = require('serve-static');
 var app = express();
 var cors = require('cors');
-
+var _ = require('lodash');
 const defaultOptions = {
     port: 3000,
     dir: '/mocks',
@@ -36,17 +36,28 @@ function getOptions() {
     return defaultOptions;
 }
 
+function setHeader(resources) {
+    _.each(resources, function(resource, key) {
+        if (resource.data !== undefined) {
+            resource.headers = options.headers;
+        } else {
+            _.each(resource, function(httpMethod, key) {
+                httpMethod.headers = options.headers;
+            });
+        }
+    });
+}
+
 function startServer(config) {
     if (Object.keys(options.headers).length) {
-        app.use(function(req, res, next) {
-            res.set(options.headers);
-            next();
-        })
+        config.forEach(setHeader);
     }
-
     if (options.corsEnable) {
         app.use(cors(options.corsOptions));
     }
+
+    var restInstance = restEmulator(config);
+    app.use(restInstance.middleware);
 
     options.root.forEach((dir) => app.use(serveStatic(dir)));
 
@@ -57,9 +68,6 @@ function startServer(config) {
             return res.sendFile(indexFile);
         });
     }
-
-    var restInstance = restEmulator(config);
-    app.use(restInstance.middleware);
 
     app.listen(options.port);
     console.log(`Started the rest server on ${options.port}`);
