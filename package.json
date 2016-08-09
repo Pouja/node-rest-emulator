@@ -15,7 +15,10 @@
   "keywords": [
     "rest",
     "emulator",
-    "mock"
+    "mock",
+    "simple",
+    "node",
+    "frontend"
   ],
   "bin": {
     "mock-server": "./index.js"
