@@ -1,6 +1,6 @@
 # Node rest emulator
-A simple stand alone mock/emulator server that uses [rest-emulator](https://github.com/temrdm/rest-emulator).
-It serves a static file server which uses json to configure the rest responses.
+A simple stand alone mock/emulator server that uses [rest-emulator](https://github.com/temrdm/rest-emulator).  
+It serves as a static file server which uses json files to configure the rest responses.
 
 # Installation
 `npm install node-rest-emulator`
