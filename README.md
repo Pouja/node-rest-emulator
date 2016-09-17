@@ -32,6 +32,22 @@ If there is any interest I will make it exportable, so you can use codewise.
     headers: {}
 };
 ```
+## Example js file
+It also supports to read js files. These files will be included through `require`.
+So you can use functions etc. to configure your responses.
+For example:
+```js
+const _ = require('lodash');
+module.exports = {
+    "/api/random": {
+        "GET": {
+            "data": _.sample([1,3,4,5,111])
+        }
+    }
+}
+```
+This configuration will return for each request to `api/random` one of those specified numbers.
+
 ## Example json file
 ```json
 {

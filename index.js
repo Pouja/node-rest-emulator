@@ -9,6 +9,8 @@ var serveStatic = require('serve-static');
 var app = express();
 var cors = require('cors');
 var _ = require('lodash');
+var reloadRequire = require('require-nocache')(module);
+
 const defaultOptions = {
     port: 3000,
     dir: '/mocks',
@@ -20,12 +22,24 @@ const defaultOptions = {
 };
 const options = getOptions();
 
+function pick(chooses) {
+    return _.sample(chooses);
+}
+
 function jsonOnly(file, stats) {
     return path.extname(file) === '.json';
 }
 
 function getJSON(filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
+}
+
+function jsOnly(file, stats) {
+    return path.extname(file) === '.js';
+}
+
+function getJs(filename) {
+    return reloadRequire(filename);
 }
 
 function getOptions() {
@@ -48,16 +62,30 @@ function setHeader(resources) {
     });
 }
 
-function startServer(config) {
-    if (Object.keys(options.headers).length) {
-        config.forEach(setHeader);
-    }
+function getConfigs(cb) {
+    recursive(process.cwd() + options.dir, function(err, filenames) {
+        if (err) {
+            throw `Failed to read the files in ${process.cwd() + options.dir}, error says: ${err}`;
+        }
+        const jsonConfigs = filenames.filter(jsonOnly).map(getJSON);
+        const jsConfigs = filenames.filter(jsOnly).map(getJs);
+
+        const configs = jsConfigs.concat(jsonConfigs);
+        if (Object.keys(options.headers).length) {
+            configs.forEach(setHeader);
+        }
+        cb(configs);
+    });
+}
+
+function startServer() {
     if (options.corsEnable) {
         app.use(cors(options.corsOptions));
     }
 
-    var restInstance = restEmulator(config);
-    app.use(restInstance.middleware);
+    app.use(function(req, res, next){
+        getConfigs((configs) => restEmulator(configs).middleware(req,res,next));
+    });
 
     options.root.forEach((dir) => app.use(serveStatic(dir)));
 
@@ -72,10 +100,5 @@ function startServer(config) {
     app.listen(options.port);
     console.log(`Started the rest server on ${options.port}`);
 }
-recursive(process.cwd() + options.dir, function(err, filenames) {
-    if (err) {
-        throw `Failed to read the files in ${process.cwd() + options.dir}, error says: ${err}`;
-    }
-    const config = filenames.filter(jsonOnly).map(getJSON);
-    startServer(config);
-});
+startServer();
+
